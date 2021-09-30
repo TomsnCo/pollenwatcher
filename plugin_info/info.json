@@ -2,7 +2,7 @@
 	"id" : "pollenwatcher",
 	"name" : "Surveillance Allergo Pollinique",
 	"licence" : "AGPL",
-	"author" : "Gr3g0rY",
+	"author" : "Tom's",
 	"require" : "3.0",
 	"category" : "weather",
 	"hasDependency" : 0,

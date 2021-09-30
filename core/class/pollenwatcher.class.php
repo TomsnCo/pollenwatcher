@@ -71,8 +71,6 @@ class pollenwatcher extends eqLogic {
 		}
       }
      
-	
-	
     /*     * *********************Méthodes d'instance************************* */
 
 
@@ -119,7 +117,6 @@ class pollenwatcher extends eqLogic {
 		if( strlen($value) <= 0 ) 
 			$this->updateData();
     }
-	
 	
 	private function createPollenInfo($logicalId, $name, $visibility = True) {	
 			
@@ -193,8 +190,6 @@ class pollenwatcher extends eqLogic {
 			$this->refreshWidget();	
 	}
 	
-	
-	
 	// *****************************************
 	// Update the Max Value Command
 	
@@ -212,9 +207,7 @@ class pollenwatcher extends eqLogic {
 		log::add('pollenwatcher', 'info', "updateMaxValue: " . $maxValue);
 		return $this->checkAndUpdateCmd('max_value', $maxValue );
 	}
-	
 
-    
     public function toHtml($_version = 'dashboard') {	
 	
 		$replace = $this->preToHtml($_version);
@@ -290,7 +283,6 @@ class pollenwatcher extends eqLogic {
 		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'main', 'pollenwatcher')));
     }
 
-	
 	private function getAllergyColor($level)
 	{	
 		if( $level == 1 )
@@ -307,8 +299,6 @@ class pollenwatcher extends eqLogic {
 	}
     	 
 }
-
-
 
 /*     * **********************pollenwatcherCmd*************************** */
 

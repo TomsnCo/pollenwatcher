@@ -25,26 +25,27 @@ class pollenwatcher extends eqLogic {
     /*     * *************************Attributs****************************** */
 	
 	public static function getPollens(){
-		return array(
-			"Cyprès",
-			"Saule",
-			"Frêne",
-			"Peuplier",
-			"Charme",
-			"Bouleau",
-			"Platane",
-			"Chêne",
-			"Graminées",
-			"Oseille",
-			"Urticacées",
-			"Châtaignier",
-			"Armoises",
-			"Aulne",
-			"Noisetier",
-			"Plantain",
-			"Olivier",
+	
+      return array(
+			"Tilleul",
 			"Ambroisies",
-			"Tilleul"
+			"Olivier",
+			"Plantain",
+			"Noisetier",
+			"Aulne",
+			"Armoises",
+			"Châtaignier",
+			"Urticacées",
+			"Oseille",
+			"Graminées",
+			"Chêne",
+			"Platane",
+			"Bouleau",
+			"Charme",
+			"Peuplier",
+			"Frêne",
+			"Saule",
+			"Cyprès"
 		);
 	}
 	
@@ -69,7 +70,7 @@ class pollenwatcher extends eqLogic {
 				log::add('pollenwatcher', 'error', $e->getMessage());
 			}
 		}
-      }
+    }
      
     /*     * *********************Méthodes d'instance************************* */
 
@@ -86,8 +87,7 @@ class pollenwatcher extends eqLogic {
 		
 		// Refresh command		
 		$command = pollenwatcherCmd::byEqLogicIdAndLogicalId($this->getId(), "refresh");
-		if(!is_object($command))
-			$command = new pollenwatcherCmd();
+		if(!is_object($command)) $command = new pollenwatcherCmd();
 		$command->setName("Rafraichir");
 		$command->setLogicalId("refresh");
 		$command->setEqLogic_id($this->getId());
@@ -133,16 +133,15 @@ class pollenwatcher extends eqLogic {
 		$info->setSubType("numeric");
 		$info->setConfiguration('minValue', 0);
 		$info->setConfiguration('maxValue', 5);
-		//$info->setDisplay('generic_type', 'POLLEN');
 		if( $visibility == False )
 			$info->setIsVisible(False);			
 		$info->save();	
 	}	
 	
 	public function updateData()
-	{		
-		
+	{
 		# Use the Curl extension to get details
+      
 		$url = 'https://pollens.fr/risks/thea/counties/' . sprintf("%02d",$this->getConfiguration("region_id"));
 		$ch = curl_init();
 		$timeout = 5;
@@ -151,38 +150,18 @@ class pollenwatcher extends eqLogic {
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
 		$html = curl_exec($ch);
 		curl_close($ch);
-		
-		# Create a DOM parser object
-		$dom = new DOMDocument();
 
-		# Parse the HTML
-		# The @ before the method call suppresses any warnings that
-		# loadHTML might throw because of invalid HTML in the page.
-		@$dom->loadHTML($html);
-		
-		# Iterate over all the <rect> tags
-		$index = 0;
-		$changed = false;
-		foreach($dom->getElementsByTagName('rect') as $link) {
-				$value = 0;
-				$width = $link->getAttribute('width');
-				if( $width > 0 && $width <= 30)
-					$value = 1;
-				else if( $width > 30 && $width <= 60)
-					$value = 2;
-				else if( $width > 60 && $width <= 90)
-					$value = 3;
-				else if( $width > 90 && $width <= 140)
-					$value = 4;
-				else if( $width > 140 )
-					$value = 5;
-				# Show the <rect width>
-				//echo $this->getPollens()[$index] . ' ' . $link->getAttribute('width') . ' ' . $value . "<br />";
-				// Update Info command
-				$changed = $this->checkAndUpdateCmd($this->getPollens()[$index], $value ) || $changed;		
-				$index += 1;
-		}
-
+        # Decodage du format json
+        $array = json_decode($html, true);
+        $index = 0;
+        $changed = false;
+        foreach($array['risks'] as $element)
+        {
+          $value = $element['level'] ? $element['level'] : 0;
+          $changed = $this->checkAndUpdateCmd($this->getPollens()[$index], $value ) || $changed;
+          $index += 1;
+        }
+      
 		$changed = $this->updateMaxValue() || $changed;			
 		log::add('pollenwatcher', 'info', "Data updated for Region: " . $this->getConfiguration("region_id"));
 		
@@ -208,108 +187,91 @@ class pollenwatcher extends eqLogic {
 		return $this->checkAndUpdateCmd('max_value', $maxValue );
 	}
 
-    public function toHtml($_version = 'dashboard') {	
-	
-		$replace = $this->preToHtml($_version);
-		//$replace = $this->preToHtml($_version,array(), True);
-
-		if (!is_array($replace))  {	
-			return $replace;
-		}
-		
-		$version = jeedom::versionAlias($_version);
-		
-		// *********************************
-		// Get global style template
-
-		$globalStyle = $this->getConfiguration("global_style");
-		if( $globalStyle == null)
-			$globalStyle = 'global_style_circle_thin';
-		
+    public function toHtml($_version = 'dashboard') {
+      
+      $replace = $this->preToHtml($_version);
+        
+      if (!is_array($replace))  {	
+          return $replace;
+      }
+      $version = jeedom::versionAlias($_version);
+      // *********************************
+      // Get global style template
+      
+      $globalStyle = $this->getConfiguration("global_style");
+        if( $globalStyle == null) $globalStyle = 'global_style_circle_thin';
 		$globalTemplate = '';
-		if( $globalTemplate != 'none' )
-			$globalTemplate = getTemplate('core', $version, $globalStyle, 'pollenwatcher');
+		if( $globalTemplate != 'none' ) $globalTemplate = getTemplate('core', $version, $globalStyle, 'pollenwatcher');
 		$replace["#global_style#"] = $globalTemplate;
-		
 		
 		// *********************************
 		//  Prepare allergy list
 	
 		$ordererArray;
 		$maxLevel = 0;
-		foreach ($this->getPollens() as $key){
-			$allergyCmd = $this->getCmd(null,  $key);
-			if( $allergyCmd->getIsVisible() == 0 )
-				continue;
+		foreach ($this->getPollens() as $key){ // parcours du array getPollens()
+          $allergyCmd = $this->getCmd(null,  $key); // getCmd($_type = null, $_logicalId = null, $_visible = null, $_multiple = false)
+            if( $allergyCmd->getIsVisible() == 0 ) continue;
 			$level = is_object($allergyCmd) ? $allergyCmd->execCmd() : 0;
-			if( $level > $maxLevel )
-				$maxLevel = $level;
-			$ordererArray[$level][] = $allergyCmd->getName();
-		}
+			if( $level > $maxLevel ) $maxLevel = $level;
+            $ordererArray[$level][] = $allergyCmd->getName();
+        }
 		
 		$data = '';	
 		for ($i=5; $i>0; $i--) {
-			if(!array_key_exists($i, $ordererArray) )
-				continue;
-			foreach($ordererArray[$i] as $key) {
-				if(strlen($data)>0)
-					$data .=  "<br/>";
-				$data .= "<span><i class='fa fa-circle' style='font-size : 1em;color:". $this->getAllergyColor($i) . "'></i>&nbsp;&nbsp;" . $key . "</span>";
-			}
+          if(!array_key_exists($i, $ordererArray) ) continue;
+          foreach($ordererArray[$i] as $key) {
+            if(strlen($data)>0) $data .=  "<br/>";
+            $data .= "<span><i class='fa fa-circle' style='font-size : 1em;color:". $this->getAllergyColor($i) . "'></i>&nbsp;&nbsp;" . $key . "</span>";
+          }
 		}		
-		$replace["#data#"] 		= $data;
+		$replace["#data#"] = $data;
 		
 		// *********************************
 		//  Prepare global level (update CMD if needed)
 		
 		$status = $this->getCmd(null, 'max_value');
-		if (  is_object($status ) && ($status->getIsVisible() == 1))
+		if (is_object($status) && ($status->getIsVisible() == 1))
 		{
-			if( $maxLevel != $status->execCmd()  ) {
-				$status->setValue(maxLevel);
-				$status->save();
-			}
-			$replace["#global_color#"]	= $this->getAllergyColor($maxLevel);
-			$replace["#global_level#"]	= $maxLevel;
+          if($maxLevel != $status->execCmd()) {
+            $status->setValue($maxLevel);
+            $status->save();
+          }
+          $replace["#global_color#"]	= $this->getAllergyColor($maxLevel);
+          $replace["#global_level#"]	= $status->execCmd();
 		}
 		else
 		{
-			$replace["#global_color#"]	= '';
-			$replace["#global_level#"]	= '';
-			$replace["#global_style#"]	= '';
+          $replace["#global_color#"]	= '';
+          $replace["#global_level#"]	= '';
+          $replace["#global_style#"]	= '';
 		}
-		
-		
-		return $this->postToHtml($_version, template_replace($replace, getTemplate('core', $version, 'main', 'pollenwatcher')));
+      $refresh = $this->getCmd(null, 'refresh');
+      $replace['#refresh_id#'] = is_object($refresh) ? $refresh->getId() : '';
+      return template_replace($replace, getTemplate('core', $version, 'main', 'pollenwatcher'));
     }
-
+  
 	private function getAllergyColor($level)
-	{	
-		if( $level == 1 )
-			return "#C1E9C1";
-		else if ($level == 2 )
-			return "#00B050";
-		else if ($level == 3 )
-			return "#FFFF00";
-		else if ($level == 4 )
-			return "#FFA329";
-		else if ($level == 5 )
-			return "#DF2B2F";
-		return "#FFFFFF";
-	}
-    	 
+	{
+      if( $level == 1 ) return "#C1E9C1";
+      else if ($level == 2 ) return "#00B050";
+      else if ($level == 3 ) return "#FFFF00";
+      else if ($level == 4 ) return "#FFA329";
+      else if ($level == 5 ) return "#DF2B2F";
+	  return "#FFFFFF";
+	}    	 
 }
 
 /*     * **********************pollenwatcherCmd*************************** */
 
 class pollenwatcherCmd extends cmd {
-	
-	public static $_widgetPossibility = array('custom' => false);
-	 
-	public function execute($_options = array()) {	
-		if ($this->getLogicalId() == 'refresh') {
-			$this->getEqLogic()->updateData();
-		}
-		return false;
+  
+  public static $_widgetPossibility = array('custom' => false);
+  
+  public function execute($_options = array()) {
+    if ($this->getLogicalId() == 'refresh') {
+      $this->getEqLogic()->updateData();
     }
+    return false;
+  }
 }

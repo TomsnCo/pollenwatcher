@@ -1,11 +1,13 @@
 {
 	"id" : "pollenwatcher",
 	"name" : "Surveillance Allergo Pollinique",
+	"description" : "Plugin permettant de récupérer les pollens actifs dans une region de france métropolitaine donnée. Ces informations sont rafraichies tous les jours.",
 	"licence" : "AGPL",
 	"author" : "Tom's",
-	"require" : "3.0",
+	"require" : "4.0",
 	"category" : "weather",
 	"hasDependency" : 0,
-	"hasOwnDeamon" : 0
+	"hasOwnDeamon" : 0,
+	"changelog" : "https://github.com/TomsnCo/pollenwatcher/blob/main/docs/fr_FR/changelog.md",
+	"documentation" : "https://github.com/Phpvarious/pollenwatcher/blob/main/docs/fr_FR/index.md"
 }
-

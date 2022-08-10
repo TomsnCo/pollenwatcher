@@ -16,13 +16,13 @@
  * along with Jeedom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* Includes */
+/* * ***************************Includes********************************* */
 require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 
 class pollenwatcher extends eqLogic {
 	
-    /*     * *************************Attributs****************************** */
+    /* Attributs */
 	
 	public static function getPollens(){
 	
@@ -52,7 +52,8 @@ class pollenwatcher extends eqLogic {
 	public static $_widgetPossibility = array('custom' => true, 'custom::layout' => false);
 	
 	
-    /* Methode static* */
+    /* Methode static */
+ 
      //Fonction exécutée automatiquement tous les jours par Jeedom cronDaily
   
 	public static function cronDaily() {	
@@ -71,7 +72,7 @@ class pollenwatcher extends eqLogic {
 		}
     }
      
-    /* Méthodes d'instance */
+    /* éthodes d'instance */
 
 
     public function postInsert() {	
@@ -202,11 +203,11 @@ class pollenwatcher extends eqLogic {
 		if( $globalTemplate != 'none' ) $globalTemplate = getTemplate('core', $version, $globalStyle, 'pollenwatcher');
 		$replace["#global_style#"] = $globalTemplate;
 		
-		//  Prepare allergy list
+		// Prepare allergy list
 	
 		$ordererArray;
 		$maxLevel = 0;
-		foreach ($this->getPollens() as $key){ // parcours du array getPollens()
+		foreach ($this->getPollens() as $key){ // Parcours du array getPollens()
           $allergyCmd = $this->getCmd(null,  $key); // getCmd($_type = null, $_logicalId = null, $_visible = null, $_multiple = false)
             if( $allergyCmd->getIsVisible() == 0 ) continue;
 			$level = is_object($allergyCmd) ? $allergyCmd->execCmd() : 0;
@@ -224,7 +225,7 @@ class pollenwatcher extends eqLogic {
 		}		
 		$replace["#data#"] = $data;
 		
-		//  Prepare global level (update CMD if needed)
+		// Prepare global level (update CMD if needed)
 		
 		$status = $this->getCmd(null, 'max_value');
 		if (is_object($status) && ($status->getIsVisible() == 1))

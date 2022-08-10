@@ -22,7 +22,7 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class pollenwatcher extends eqLogic {
 	
-    /*     * *************************Attributs****************************** */
+    /* Attributs */
 	
 	public static function getPollens(){
 	
@@ -52,7 +52,8 @@ class pollenwatcher extends eqLogic {
 	public static $_widgetPossibility = array('custom' => true, 'custom::layout' => false);
 	
 	
-    /* Methode static* */
+    /* Methode static */
+ 
      //Fonction exécutée automatiquement tous les jours par Jeedom cronDaily
   
 	public static function cronDaily() {	
@@ -71,8 +72,7 @@ class pollenwatcher extends eqLogic {
 		}
     }
      
-    /* Méthodes d'instance */
-
+    /* Méthodes d'instance*/
 
     public function postInsert() {	
 
@@ -193,7 +193,7 @@ class pollenwatcher extends eqLogic {
           return $replace;
       }
       $version = jeedom::versionAlias($_version);
-
+       
 	  // Get global style template
       
       $globalStyle = $this->getConfiguration("global_style");
@@ -202,7 +202,7 @@ class pollenwatcher extends eqLogic {
 		if( $globalTemplate != 'none' ) $globalTemplate = getTemplate('core', $version, $globalStyle, 'pollenwatcher');
 		$replace["#global_style#"] = $globalTemplate;
 		
-		//  Prepare allergy list
+		// Prepare allergy list
 	
 		$ordererArray;
 		$maxLevel = 0;
@@ -224,7 +224,7 @@ class pollenwatcher extends eqLogic {
 		}		
 		$replace["#data#"] = $data;
 		
-		//  Prepare global level (update CMD if needed)
+		// Prepare global level (update CMD if needed)
 		
 		$status = $this->getCmd(null, 'max_value');
 		if (is_object($status) && ($status->getIsVisible() == 1))

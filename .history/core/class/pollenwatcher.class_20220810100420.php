@@ -22,7 +22,7 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class pollenwatcher extends eqLogic {
 	
-    /*     * *************************Attributs****************************** */
+    /* Attributs */
 	
 	public static function getPollens(){
 	
@@ -51,7 +51,6 @@ class pollenwatcher extends eqLogic {
 	
 	public static $_widgetPossibility = array('custom' => true, 'custom::layout' => false);
 	
-	
     /* Methode static* */
      //Fonction exécutée automatiquement tous les jours par Jeedom cronDaily
   
@@ -72,7 +71,6 @@ class pollenwatcher extends eqLogic {
     }
      
     /* Méthodes d'instance */
-
 
     public function postInsert() {	
 
@@ -102,7 +100,6 @@ class pollenwatcher extends eqLogic {
 		}
     }
 
-	
     public function postSave() {	
 		
 		if( $this->getIsEnable() == 0 )

@@ -22,7 +22,7 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 
 class pollenwatcher extends eqLogic {
 	
-    /*     * *************************Attributs****************************** */
+    /* Attributs */
 	
 	public static function getPollens(){
 	
@@ -72,7 +72,6 @@ class pollenwatcher extends eqLogic {
     }
      
     /* Méthodes d'instance */
-
 
     public function postInsert() {	
 
